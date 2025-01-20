@@ -24,7 +24,7 @@ Aplicación web para subir modelos 3D, calcular costos de impresión y gestionar
 
 1. Clona el repositorio:
 
-   git clone https://github.com/tu-usuario/3dhop.git
+   git clone https://github.com/Howlpy/3dhop.git
    cd 3dhop
 
 2. Instala dependencias:
