@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
+import prisma from '@/utils/prisma'
 
 export async function POST(request: Request) {
   try {
@@ -45,14 +44,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Hash de contraseña
-    const hashedPassword = await bcrypt.hash(password, 12);
-    console.log("password:${password}")
     // Crear usuario
     const newUser = await prisma.user.create({
       data: {
         email: email.toLowerCase(),
-        password: hashedPassword
+        password: password
       }
     });
 

@@ -5,8 +5,13 @@ export default withAuth({
   pages: {
     signIn: "/auth/login",
   },
+  // Add logic to redirect users with active sessions away from login/register
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*"], // Protege todas las rutas bajo /dashboard
+  matcher: [
+    "/dashboard/:path*",
+    '/auth/login', 
+    '/auth/register' // Include these routes for session checking
+  ], 
 };

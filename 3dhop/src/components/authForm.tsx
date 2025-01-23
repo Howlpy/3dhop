@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { hash } from "bcryptjs"; // Opcional para hashing
 import { LockClosedIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
-import bcrypt from "bcryptjs"
 export default function AuthForm({ isLogin }: { isLogin: boolean }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +30,8 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
     } else {
       // Lógica de registro (¡hashea la contraseña en producción!)
       try {
-        const hashedPassword = await hash(password, 10);
+        const hashedPassword = await hash(password, 12);
+        console.log(hashedPassword)
         const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
