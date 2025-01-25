@@ -2,7 +2,6 @@
 import NextAuth, {AuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import prisma from "@/utils/prisma"
 
@@ -16,22 +15,18 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // 1. Validar campos
-        console.log(credentials)
+        // Validar campos
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Campos requeridos");
         }
-        console.log(credentials)
-        // 2. Buscar usuario existente
+        // Buscar usuario existente
         const user = await prisma.user.findUnique({
           where: { email: credentials.email.toLowerCase() }
         });
-        console.log(credentials)
-        // 3. Verificar existencia y contraseña
+        //Verificar existencia y contraseña
         if (!user || !user.password) {
           throw new Error("Usuario no registrado");
         }
-        console.log(credentials.password + " " +user.password)
         const isValid = await bcrypt.compare(
           credentials.password,
           user.password
