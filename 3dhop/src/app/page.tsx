@@ -1,6 +1,7 @@
 // app/page.tsx
 import Image from "next/image";
 import Link from "next/link";
+import ModelViewer from "../components/ModelViewer";
 
 export default function Home() {
   return (
@@ -75,6 +76,7 @@ export default function Home() {
           </Link>
         </div>
       </div>
+
     </div>
   );
 }

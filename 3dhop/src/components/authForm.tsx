@@ -28,7 +28,6 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
         router.push("/dashboard");
       }
     } else {
-      // Lógica de registro (¡hashea la contraseña en producción!)
       try {
         const hashedPassword = await hash(password, 12);
         console.log(hashedPassword)
