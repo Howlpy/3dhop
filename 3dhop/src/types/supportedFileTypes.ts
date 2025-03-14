@@ -1,1 +1,1 @@
-export type SupportedExtensions = 'gltf' | 'glb' | 'obj' | 'fbx';
+export type SupportedExtensions = 'gltf' | 'glb' | 'obj' | 'fbx' | 'stl';

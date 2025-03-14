@@ -7,9 +7,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
-import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
-import { DDSLoader } from 'three/addons/loaders/DDSLoader.js';
-import { TGALoader } from 'three/addons/loaders/TGALoader.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { SupportedExtensions } from '@/types/supportedFileTypes';
 import { modelPosition } from 'three/tsl';
 
@@ -19,6 +17,13 @@ interface ModelLoaderprops {
   width?: string | number;  // Permitir valores como '100%' o números específicos
   height?: string | number;
 }
+
+const baseMaterial = new THREE.MeshStandardMaterial({
+  color: 0x808080,
+  envMapIntensity: 2,
+  metalness: 0.5,
+  roughness: 0.5,
+})
 
 const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: ModelLoaderprops) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -58,6 +63,8 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
         return new OBJLoader();
       case 'fbx':
         return new FBXLoader();
+      case 'stl':
+        return new STLLoader();
       default:
         throw new Error(`Tipo de archivo no soportado: ${type}`);
     }
@@ -78,7 +85,7 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
     
         let modelScene: THREE.Object3D;
     
-        if ('scene' in result){
+        if ('scene' in result){ //esto es para gltf y glb que viene con una escena
           modelScene = result.scene;
           modelScene.traverse((child) => {
             if (child instanceof THREE.Mesh){
@@ -86,16 +93,11 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
               child.material.needsUpdate = true;
             }
           });
-        }else{
+        }else{ //esto es para obj, fbx, stl que viene con un solo objeto sin escena ni material
           modelScene = result;
           modelScene.traverse((child) => {
             if (child instanceof THREE.Mesh){
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0x808080,
-                envMapIntensity: 2,
-                metalness: 0.5,
-                roughness: 0.5,
-              });
+              child.material = baseMaterial
             }
           });
         }
@@ -137,13 +139,27 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
           renderer.current.render(scene.current, camera.current);
         }
       }
+
       if (fileType === 'gltf' || fileType === 'glb'){
         loader.load(modelUrl, 
           (gltf) => processModel(gltf),
           (progress) => console.log('Cargando:', (progress.loaded / progress.total * 100) + '%'),
           (error) => console.error('Error cargando modelo:', error)
         );
-      }else{
+      }else if(fileType === 'stl'){
+        loader.load(modelUrl,
+          (geometry) => {
+            
+            const mesh = new THREE.Mesh(geometry, baseMaterial)
+            scene.current.add(mesh)
+            processModel(mesh);
+          },
+          (progress) => console.log('Cargando:', (progress.loaded / progress.total * 100) + '%'),
+          (error) => console.error('Error cargando modelo:', error)
+        )
+      }
+      
+      else{
         loader.load(modelUrl,
           (result) => processModel(result),
           (progress) => console.log('Cargando:', (progress.loaded / progress.total * 100) + '%'),
@@ -205,7 +221,7 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
 
     loadModel();
 
-    // Environment Map
+    /*
     new RGBELoader()
       .load('/environments/industrial_sunset_02_4k.hdr', (texture) => {
         texture.colorSpace = THREE.SRGBColorSpace;
@@ -218,7 +234,7 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
         texture.dispose();
         pmremGenerator.dispose();
       });
-
+    */
     // Animación
     const animate = () => {
       animationFrameId.current = requestAnimationFrame(animate);

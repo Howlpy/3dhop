@@ -6,6 +6,9 @@ import Link from 'next/link'
 import ModelViewer from '@/components/ModelViewer'
 import { ModelData } from '@/interfaces/modelInterface';
 import { SupportedExtensions } from '@/types/supportedFileTypes';
+
+const SUPPORTED_EXTENSIONS = ['gltf', 'glb', 'obj', 'fbx', 'stl'];
+
 const DashboardPage = () => {
 
   const [currentModel, setCurrentModel] = useState<string | null>(null);
@@ -27,12 +30,12 @@ const DashboardPage = () => {
     const file = acceptedFiles[0]
     if (!file) return
     const fileType = file.name.split('.').pop()?.toLowerCase() as SupportedExtensions;
-    if (file.name.endsWith('.glb') || file.name.endsWith('.gltf')|| file.name.endsWith('.obj')|| file.name.endsWith('.fbx')) {
+    if (SUPPORTED_EXTENSIONS.includes(fileType)) {
       const objectUrl = URL.createObjectURL(file)
       setModelData({url: objectUrl,type: fileType})
       setCurrentModel(objectUrl)
     } else {
-      alert('Solo se permiten archivos GLB, GLTF, OBJ, FBX')
+      alert('Solo se permiten archivos GLB, GLTF, OBJ, FBX, STL')
     }
   }, [])
 
@@ -41,7 +44,8 @@ const DashboardPage = () => {
     accept: {
       'model/gltf-binary': ['.glb','.gltf'],
       'model/obj': ['.obj'],
-      'model/fbx': ['.fbx']
+      'model/fbx': ['.fbx'],
+      'model/stl': ['.stl']
     },
     multiple: false
   })
