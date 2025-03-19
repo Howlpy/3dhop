@@ -10,5 +10,6 @@ export default async function DashboardPage() {
     redirect('/auth/register');
   }
 
-  return <DashboardClient />;
+  return (
+  <DashboardClient />)
 }

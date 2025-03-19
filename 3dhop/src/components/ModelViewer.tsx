@@ -9,7 +9,7 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { SupportedExtensions } from '@/types/supportedFileTypes';
-import { modelPosition } from 'three/tsl';
+
 
 interface ModelLoaderprops {
   modelUrl: string;
@@ -84,24 +84,12 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
         scene.current.add(ambientLight, directionalLight);
     
         let modelScene: THREE.Object3D;
-    
-        if ('scene' in result){ //esto es para gltf y glb que viene con una escena
-          modelScene = result.scene;
-          modelScene.traverse((child) => {
-            if (child instanceof THREE.Mesh){
-              child.material.envMapIntensity = 2;
-              child.material.needsUpdate = true;
-            }
-          });
-        }else{ //esto es para obj, fbx, stl que viene con un solo objeto sin escena ni material
-          modelScene = result;
-          modelScene.traverse((child) => {
-            if (child instanceof THREE.Mesh){
-              child.material = baseMaterial
-            }
-          });
-        }
-
+        modelScene = result;
+        modelScene.traverse((child) => {
+          if (child instanceof THREE.Mesh){
+            child.material = baseMaterial
+          }
+        });
         // Calcular dimensiones del modelo
         const box = new THREE.Box3().setFromObject(modelScene);
         const size = box.getSize(new THREE.Vector3());
@@ -142,7 +130,15 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
 
       if (fileType === 'gltf' || fileType === 'glb'){
         loader.load(modelUrl, 
-          (gltf) => processModel(gltf),
+          (gltf) => {
+            const scene = 'scene' in gltf ? gltf.scene : undefined;
+            if (scene){
+              processModel(scene)
+            }else{
+              console.error('No se ha encontrado la escena en el archivo gltf/glb')
+            }
+            
+          },
           (progress) => console.log('Cargando:', (progress.loaded / progress.total * 100) + '%'),
           (error) => console.error('Error cargando modelo:', error)
         );
@@ -150,7 +146,7 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
         loader.load(modelUrl,
           (geometry) => {
             
-            const mesh = new THREE.Mesh(geometry, baseMaterial)
+            const mesh = new THREE.Mesh(geometry as THREE.BufferGeometry, baseMaterial)
             scene.current.add(mesh)
             processModel(mesh);
           },
@@ -161,7 +157,7 @@ const ModelViewer = ({ modelUrl, fileType, width = '100%', height = '400px' }: M
       
       else{
         loader.load(modelUrl,
-          (result) => processModel(result),
+          (result) => processModel(result as THREE.Object3D),
           (progress) => console.log('Cargando:', (progress.loaded / progress.total * 100) + '%'),
           (error) => console.error('Error cargando modelo:', error)
         );

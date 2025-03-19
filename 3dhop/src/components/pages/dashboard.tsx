@@ -6,7 +6,7 @@ import Link from 'next/link'
 import ModelViewer from '@/components/ModelViewer'
 import { ModelData } from '@/interfaces/modelInterface';
 import { SupportedExtensions } from '@/types/supportedFileTypes';
-
+import NavBar from  "@/components/navBar";
 const SUPPORTED_EXTENSIONS = ['gltf', 'glb', 'obj', 'fbx', 'stl'];
 
 const DashboardPage = () => {
@@ -68,6 +68,7 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      
       {/* Sidebar */}
       <aside className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg">
         <div className="p-6">
