@@ -1,3 +1,4 @@
+
 generator client {
   provider        = "prisma-client-js"
 }
@@ -5,13 +6,34 @@ generator client {
 datasource db {
   provider          = "postgresql"
   url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        Int   @id @default(autoincrement())
+  name      String?
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  uploadObjects uploadObjects[]
+}
+
+model uploadObjects {
+  id        Int   @id @default(autoincrement())
+  name      String
+  size      Int?
+  typeFile  typeFiles
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  fromUser User @relation(fields: [fromUserId], references: [id])
+  fromUserId Int
+}
+
+enum typeFiles{
+  STL
+  FBX
+  OBJ
+  GLTF
+  GLB
 }
